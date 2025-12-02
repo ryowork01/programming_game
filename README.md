@@ -1,1 +1,17 @@
 # programming_game
+ポートフォリオ用のプログラミング学習ゲーム
+# アプリ概要
+Next.jsとsupabaseを用いたプログラミング学習ゲームです
+# サイトイメージ
+※完成後、メインページ画像を添付
+#サイトURL
+完成後URL添付
+「ゲストログインからすぐにお試しいただけます」※ゲストログインボタンの位置も明示
+#使用技術
+- フロントエンド：Next.js 
+- バックエンド：Next.js
+- データベース：Supabase
+- デプロイ：Vercel
+- バージョン管理：Git、GitHub
+- テスト・デバッグ：DevTools（Chrome）
+- CI/CD：GitHub Actions（ESLint）
