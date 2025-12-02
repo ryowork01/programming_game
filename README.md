@@ -15,5 +15,6 @@ Next.jsとsupabaseを用いたプログラミング学習ゲームです
 - バージョン管理：Git、GitHub
 - テスト・デバッグ：DevTools（Chrome）
 - CI/CD：GitHub Actions（ESLint）
+  
 #設計ドキュメント
 [要件定義・基本設計・詳細設計の一覧_Googleスプレッドシート](https://docs.google.com/spreadsheets/d/1ST3IWntt1C2upT6inckFfqFhUcJOdXnCHDDdo87TePI/edit?usp=sharing)
