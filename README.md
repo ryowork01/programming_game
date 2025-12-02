@@ -22,3 +22,4 @@ Next.jsとsupabaseを用いたプログラミング学習ゲームです
   
 # 設計ドキュメント
 [要件定義・基本設計・詳細設計の一覧_Googleスプレッドシート](https://docs.google.com/spreadsheets/d/1ST3IWntt1C2upT6inckFfqFhUcJOdXnCHDDdo87TePI/edit?usp=sharing)
+詳細設計時のワイヤーフレーム、ER図、ワークフロー図の画像はdocsディレクトリに格納しています。[こちらからアクセスできます]()
