@@ -41,6 +41,6 @@ Next.jsとsupabaseを用いたプログラミング学習ゲームです
 
 - 活用した生成AIとその用途
 
--- ChatGPT：要件定義、設計、各種リサーチ
--- v0：アプリのモック作成
--- GitHub Copilot Chat：ローカル環境でのコードの修正相談
+ChatGPT：要件定義、設計、各種リサーチ
+v0：アプリのモック作成
+GitHub Copilot Chat：ローカル環境でのコードの修正相談
