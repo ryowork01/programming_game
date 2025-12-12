@@ -1,0 +1,330 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: #1a1a2e;
+  --foreground: #eaeaea;
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: #6b21a8;
+  --primary-foreground: #fef3c7;
+  --secondary: #00d4ff;
+  --secondary-foreground: #1a1a2e;
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: #ff006e;
+  --accent-foreground: #1a1a2e;
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.577 0.245 27.325);
+  --border: #444;
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --radius: 0;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+
+  /* RPG specific tokens */
+  --rpg-dark: #0f0f1e;
+  --rpg-light: #f5f5f5;
+  --rpg-purple: #6b21a8;
+  --rpg-cyan: #00d4ff;
+  --rpg-pink: #ff006e;
+  --rpg-gold: #fbbf24;
+  --rpg-text: #eaeaea;
+  --rpg-border: #444;
+
+  /* Add pixel font custom property for Tailwind v4 compatibility */
+  --font-pixel: "Courier New", monospace;
+}
+
+.dark {
+  --background: #1a1a2e;
+  --foreground: #eaeaea;
+  --card: oklch(0.145 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.145 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: #fef3c7;
+  --primary-foreground: #6b21a8;
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: oklch(0.269 0 0);
+  --input: oklch(0.269 0 0);
+  --ring: oklch(0.439 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(0.269 0 0);
+  --sidebar-ring: oklch(0.439 0 0);
+}
+
+@theme inline {
+  /* optional: --font-sans, --font-serif, --font-mono if they are applied in the layout.tsx */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    /* ドラクエ風：青空 → 雲 → 草原グラデーション */
+    background: linear-gradient(to bottom,
+        #6ec3ff 0%,
+        /* 明るい青空 */
+        #a8d8ff 30%,
+        /* ふわっとした雲の層 */
+        #ffffff 45%,
+        /* 雲のハイライト */
+        #87d37c 70%,
+        /* 草原のライトグリーン */
+        #3fa34d 100%
+        /* 草の影部分（深い緑） */
+      ) !important;
+
+    color: var(--foreground);
+
+    /* レトロ感のための“ドットノイズ” */
+    background-image:
+      linear-gradient(0deg,
+        rgba(255, 255, 255, 0.04) 1px,
+        transparent 1px),
+      linear-gradient(90deg,
+        rgba(255, 255, 255, 0.04) 1px,
+        transparent 1px);
+    background-size: 4px 4px, 4px 4px;
+  }
+}
+
+@layer components {
+  /* Replace custom class with inline styles in components to avoid Tailwind compatibility issues */
+
+  /* RPG Window style */
+  .rpg-window {
+      border: 4px solid #6eb6ff;
+      box-shadow: inset 0 0 0 2px #1d2b4c;
+      background: #0c1444;
+      padding: 12px;
+      border-radius: 2px;
+      position: relative;
+    }
+
+  .rpg-window::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.03),
+      rgba(0, 0, 0, 0.03) 1px,
+      transparent 1px,
+      transparent 2px
+    );
+  }
+
+  /* RPG Button style */
+  .rpg-button {
+    padding: 0.5rem 1rem;
+    font-family: var(--font-pixel);
+    letter-spacing: 0.05em;
+    font-weight: bold;
+    font-size: 0.875rem;
+    cursor: pointer;
+    border: 2px solid var(--rpg-border);
+    background: linear-gradient(135deg, #3d3d5d 0%, #2d2d4d 100%);
+    color: var(--rpg-gold);
+    box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.1), inset -1px -1px 0 rgba(0, 0, 0, 0.5), 0 4px 0
+      rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+  }
+
+  .rpg-button:hover {
+    background: linear-gradient(135deg, #4d4d6d 0%, #3d3d5d 100%);
+    transform: translate(0, 2px);
+    box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.1), inset -1px -1px 0 rgba(0, 0, 0, 0.5), 0 2px 0
+      rgba(0, 0, 0, 0.3);
+  }
+
+  .rpg-button:active {
+    transform: translate(0, 4px);
+    box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.1), inset -1px -1px 0 rgba(0, 0, 0, 0.5), 0 0 0 rgba(0, 0, 0, 0.3);
+  }
+
+  /* Status bar */
+  .rpg-bar {
+    border: 2px solid var(--rpg-border);
+    background: #1a1a2e;
+    height: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .rpg-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--rpg-cyan) 0%, var(--rpg-purple) 100%);
+    transition: width 0.3s ease;
+    position: relative;
+  }
+
+  .rpg-bar-fill::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(255, 255, 255, 0.1) 2px,
+      rgba(255, 255, 255, 0.1) 4px
+    );
+  }
+
+  /* Menu item styling */
+  .rpg-menu-item {
+    padding: 0.5rem 0.75rem;
+    font-family: var(--font-pixel);
+    letter-spacing: 0.05em;
+    font-weight: bold;
+    font-size: 0.875rem;
+    cursor: pointer;
+    color: var(--rpg-gold);
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+  }
+
+  .rpg-menu-item:hover,
+  .rpg-menu-item.active {
+    background: rgba(107, 33, 168, 0.3);
+    border-left-color: var(--rpg-pink);
+    filter: brightness(1.3);
+    transform: translateX(6px);
+    transition: 0.15s;
+  }
+}
+
+/* ドラクエ風ウィンドウ */
+.rpg-window {
+  background: #0a0a1a; /* ほぼ黒に近い紺 */
+  border: 2px solid #ffffff;
+  box-shadow: inset 0 0 0 2px #5a5a8a, 2px 2px 0 #000000;
+  border-radius: 2px;
+}
+
+/* ドラクエ風ボタン */
+.rpg-button {
+  background: #000000;
+  color: white;
+  border: 2px solid #ffffff;
+  padding: 6px 12px;
+  font-family: "Courier New", monospace;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  transition: 0.1s;
+}
+.rpg-button:hover:not(:disabled) {
+  background: #1a1a4a;
+  border-color: #6bb6ff;
+  color: #dff3ff;
+}
+
+/* HP/MPバー */
+.rpg-bar {
+  width: 100%;
+  height: 10px;
+  background: #111;
+  border: 2px solid #555;
+  overflow: hidden;
+  border-radius: 1px;
+}
+.rpg-bar-fill {
+  height: 100%;
+}
+
+.dq-font {
+  font-family: "Courier New", monospace;
+  letter-spacing: 0.05em;
+  font-weight: bold;
+}
+
+.dq-skill-box {
+  border-left: 3px solid #ff66aa;
+  padding-left: 6px;
+}
+
+.dq-button {
+  font-family: "Courier New", monospace;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+}
