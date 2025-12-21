@@ -105,6 +105,7 @@ export function HomePage() {
           exp: finalPlayer.exp,
           nextLevelExp: 100,
           skills: [],
+          gold: 0
         })
 
         setMessage(`ようこそ ${finalPlayer.name}！`)
@@ -161,6 +162,7 @@ export function HomePage() {
           <div className="text-sm text-cyan-300 space-y-2">
             <div>ＬＶ：{gameState.character.level}</div>
             <div>ＥＸＰ：{gameState.character.exp}/{gameState.character.nextLevelExp}</div>
+            <div>ゴールド：{gameState.character.gold} G</div>
             <div>スキル：{gameState.character.skills.length}</div>
           </div>
         </div>
