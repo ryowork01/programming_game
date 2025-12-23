@@ -9,7 +9,7 @@ console.log("HomePage render");
 export default function Page() {
   return (
     <GameProvider>
-      <main className="min-h-screen bg-rpg-dark text-rpg-text p-4">
+      <main className="min-h-screen items-center justify-center">
         <HomePage />
       </main>
     </GameProvider>

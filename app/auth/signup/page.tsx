@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import type React from "react"
 import { useState } from "react"
@@ -21,22 +21,18 @@ export default function SignUp() {
       setError("メールアドレスを入力してください")
       return false
     }
-
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setError("メールアドレスの形式が正しくありません")
       return false
     }
-
     if (!password) {
       setError("パスワードを入力してください")
       return false
     }
-
     if (password.length < 8) {
       setError("パスワードは8文字以上にしてください")
       return false
     }
-
     return true
   }
 
@@ -74,54 +70,75 @@ export default function SignUp() {
   }
 
   return (
-    <div className="max-w-md mx-auto mt-16">
-      <RPGWindow title="新規登録">
-        <form onSubmit={handleSignUp} className="flex flex-col space-y-4">
+    <div
+      className="min-h-screen flex items-center justify-center bg-cover bg-center"
+      style={{ 
+        backgroundImage: "url(/backgrounds/login.jpg)" 
+      }}
+    >
+
+      {/* 暗幕オーバーレイ */}
+      <div className="absolute inset-0 bg-black/60" />
+
+      <div className="relative z-10 w-full max-w-md px-4">
+        <RPGWindow>
+          <h1 className="text-2xl text-center text-yellow-300 mb-4 font-bold tracking-widest">
+            新規登録
+          </h1>
+
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded text-sm">
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
               {error}
             </div>
           )}
 
-          <div>
-            <label className="block mb-1 text-white">メールアドレス</label>
-            <input
-              type="email"
-              className="w-full px-3 py-2 border rounded"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
+          <form onSubmit={handleSignUp} className="space-y-4">
+            <div>
+              <label htmlFor="email" className="block mb-1 text-sm text-cyan-200">
+                メールアドレス
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full px-3 py-2 rounded bg-black/60 border border-cyan-400 text-white"
+              />
+            </div>
 
-          <div>
-            <label className="block mb-1 text-white">パスワード</label>
-            <input
-              type="password"
-              className="w-full px-3 py-2 border rounded"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
+            <div>
+              <label htmlFor="password" className="block mb-1 text-sm text-cyan-200">
+                パスワード
+              </label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="w-full px-3 py-2 rounded bg-black/60 border border-cyan-400 text-white"
+              />
+            </div>
 
-          <RPGButton
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded"
-          >
-            {loading ? "登録中..." : "アカウント作成"}
-          </RPGButton>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full rpg-menu-item"
+            >
+              {loading ? "登録中..." : "アカウント作成"}
+            </button>
 
-          <RPGButton
-            type="button"
-            onClick={() => router.push("/")}
-            className="w-full bg-gray-500 hover:bg-gray-600 text-white py-2 rounded"
-          >
-            トップページに戻る
-          </RPGButton>
-        </form>
-      </RPGWindow>
+            <RPGButton
+              type="button"
+              onClick={() => router.push("/")}
+              className="w-full rpg-menu-item"
+            >
+              トップページに戻る
+            </RPGButton>
+          </form>
+        </RPGWindow>
+      </div>
     </div>
   )
 }
