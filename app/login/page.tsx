@@ -6,7 +6,9 @@ import { LogIn } from "@/components/pages/login-page"
 export default function Page() {
   return (
 	<GameProvider>
-	  <main className="min-h-screen bg-rpg-dark text-rpg-text p-4">
+	  <main className="min-h-screen bg-rpg-dark text-rpg-text p-4"
+			  style={{ backgroundImage: "url(/backgrounds/login.jpg)",
+			  }}>
 		<LogIn />
 	  </main>
 	</GameProvider>
