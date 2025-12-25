@@ -35,12 +35,8 @@ export function HomePage() {
   const [authChecked, setAuthChecked] = useState(false)
   const [playerLoaded, setPlayerLoaded] = useState(false)
 
-  // 🔒 二重実行防止
   const setupDoneRef = useRef(false)
 
-  // =====================
-  // Auth 確定処理
-  // =====================
   useEffect(() => {
     const init = async () => {
       const { data } = await supabase.auth.getSession()
@@ -60,14 +56,10 @@ export function HomePage() {
     return () => subscription.unsubscribe()
   }, [])
 
-  // =====================
-  // Player セットアップ
-  // =====================
   useEffect(() => {
     if (!authChecked) return
     if (setupDoneRef.current) return
 
-    // 🔑 ログインしていない場合も必ず抜ける
     if (!user) {
       setPlayerLoaded(true)
       setupDoneRef.current = true
@@ -120,17 +112,12 @@ export function HomePage() {
     setupPlayer()
   }, [authChecked, user, setCharacter, setMessage])
 
-  // =====================
-  // ページ切り替え
-  // =====================
+
   if (gameState.currentPage === "learn") return <LearnPage />
   if (gameState.currentPage === "battle") return <BattlePage />
   if (gameState.currentPage === "status") return <StatusPage />
   if (gameState.currentPage === "skillboard") return <SkillBoardPage />
 
-  // =====================
-  // Loading
-  // =====================
   if (!authChecked || !playerLoaded) {
     return (
       <div className="flex items-center justify-center min-h-screen text-cyan-300">
@@ -141,9 +128,6 @@ export function HomePage() {
 
   const isGuest = user?.is_anonymous === true
 
-  // =====================
-  // UI
-  // =====================
   return (
     <div className="max-w-2xl mx-auto space-y-4 p-4 bg-[#1b1d2b] min-h-screen text-cyan-100">
       <div className="text-center mb-6">
@@ -173,6 +157,14 @@ export function HomePage() {
         <RPGButton className="w-full text-left rpg-menu-item" onClick={() => setPage("battle")}>▶ たたかう</RPGButton>
         <RPGButton className="w-full text-left rpg-menu-item" onClick={() => setPage("status")}>▶ ステータス</RPGButton>
         <RPGButton className="w-full text-left rpg-menu-item" onClick={() => setPage("skillboard")}>▶ スキルボード</RPGButton>
+
+        {/* 🆕 ここを追加 */}
+        <RPGButton
+          className="w-full text-left rpg-menu-item"
+          onClick={() => router.push("components/pages/shop-page")}
+        >
+          ▶ どうぐ屋
+        </RPGButton>
 
         {isGuest && (
           <RPGButton onClick={() => router.push("/upgrade")}>
