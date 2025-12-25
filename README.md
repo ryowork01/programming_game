@@ -5,7 +5,7 @@
 Next.jsとsupabaseを用いたプログラミング学習ゲームです
 
 # サイトイメージ
-※完成後、メインページ画像を添付
+
 
 # サイトURL
 https://code-questia.vercel.app/
