@@ -10,8 +10,9 @@ import SkillBoardPage from "@/components/pages/skillboard-page"
 import { supabase } from "@/lib/supabaseClient"
 import { useRouter } from "next/navigation"
 
-
-//ログアウトボタン設定
+// =====================
+// ログアウトボタン
+// =====================
 export function LogoutButton() {
   const router = useRouter()
 
@@ -37,6 +38,9 @@ export function HomePage() {
 
   const setupDoneRef = useRef(false)
 
+  // =====================
+  // Auth 確定
+  // =====================
   useEffect(() => {
     const init = async () => {
       const { data } = await supabase.auth.getSession()
@@ -97,7 +101,7 @@ export function HomePage() {
           exp: finalPlayer.exp,
           nextLevelExp: 100,
           skills: [],
-          gold: 0
+          gold: 0,
         })
 
         setMessage(`ようこそ ${finalPlayer.name}！`)
@@ -128,27 +132,89 @@ export function HomePage() {
 
   const isGuest = user?.is_anonymous === true
 
+  // =====================
+  // UI（背景＋透過）
+  // =====================
   return (
-    <div className="max-w-2xl mx-auto space-y-4 p-4 bg-[#1b1d2b] min-h-screen text-cyan-100">
-      <div className="text-center mb-6">
-        <h1 className="text-3xl text-cyan-300 mb-2 retro-title">
-          ＲＰＧがくしゅうアプリ
-        </h1>
-        <p className="text-cyan-400 text-xs">▼ しれんに たちむかおう ▼</p>
-      </div>
+    <div
+      className="min-h-screen flex bg-cover bg-center bg-fixed "
+      style={{ backgroundImage: "url(/backgrounds/home.jpg)" }}
+    >
+      {/* 画面全体の暗幕（背景を活かす） */}
+      <div className="min-h-screen bg-black/60 w-full justify-center p-4">
+        
+          <div className="text-center mb-1">
+            <h1 className="text-3xl text-cyan-300 mb-2 retro-title">
+              ＲＰＧがくしゅうアプリ
+            </h1>
+            <p className="text-cyan-400 text-xs">
+              ▼ しれんに たちむかおう ▼
+            </p>
+          </div>
 
-      <RPGWindow title={gameState.character.name}>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <RPGBar label="ＨＰ" current={gameState.character.hp} max={gameState.character.maxHp} />
-            <RPGBar label="ＭＰ" current={gameState.character.mp} max={gameState.character.maxMp} />
-          </div>
-          <div className="text-sm text-cyan-300 space-y-2">
-            <div>ＬＶ：{gameState.character.level}</div>
-            <div>ＥＸＰ：{gameState.character.exp}/{gameState.character.nextLevelExp}</div>
-            <div>ゴールド：{gameState.character.gold} G</div>
-            <div>スキル：{gameState.character.skills.length}</div>
-          </div>
+          <RPGWindow title={gameState.character.name}>
+          <div className="grid grid-cols-2 gap-4">
+              <div>
+                <RPGBar label="ＨＰ" current={gameState.character.hp} max={gameState.character.maxHp} />
+                <RPGBar label="ＭＰ" current={gameState.character.mp} max={gameState.character.maxMp} />
+              </div>
+              <div className="text-sm text-cyan-300 space-y-2">
+                <div>ＬＶ：{gameState.character.level}</div>
+                <div>ＥＸＰ：{gameState.character.exp}/{gameState.character.nextLevelExp}</div>
+                <div>ゴールド：{gameState.character.gold} G</div>
+                <div>スキル：{gameState.character.skills.length}</div>
+              </div>
+            </div>
+          </RPGWindow>
+
+          <RPGWindow title="メッセージ">
+            <p
+              className="text-sm text-yellow-300 min-h-12"
+              style={{
+                fontFamily: '"Courier New", monospace',
+                letterSpacing: "0.03em",
+                fontWeight: "bold",
+                whiteSpace: "pre-wrap",
+              }}
+            >
+              {gameState.message}
+            </p>
+          </RPGWindow>
+
+          <RPGWindow title="コマンド">
+            <RPGButton className="w-full text-left rpg-menu-item" onClick={() => setPage("learn")}>
+              ▶ まなぶ
+            </RPGButton>
+
+            <RPGButton
+              className="w-full text-left rpg-menu-item"
+              onClick={() => {
+                if (gameState.character.hp <= 0) {
+                  setMessage("ＨＰが ０ なので たたかえない！ やくそうをつかおう！")
+                  return
+                }
+                setPage("battle")
+              }}
+            >
+              ▶ たたかう
+            </RPGButton>
+
+            <RPGButton className="w-full text-left rpg-menu-item" onClick={() => setPage("status")}>
+              ▶ ステータス
+            </RPGButton>
+
+            <RPGButton className="w-full text-left rpg-menu-item" onClick={() => setPage("skillboard")}>
+              ▶ スキルボード
+            </RPGButton>
+
+            {isGuest && (
+              <RPGButton onClick={() => router.push("/upgrade")}>
+                ▶ 本登録する
+              </RPGButton>
+            )}
+
+            <LogoutButton />
+          </RPGWindow>
         </div>
       </RPGWindow>
 

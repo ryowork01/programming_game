@@ -70,7 +70,10 @@ export function StatusPage() {
 
 
   return (
-    <div className="max-w-2xl mx-auto space-y-4 p-4 text-cyan-100">
+    <div className="min-h-screen flex-1 bg-cover bg-center bg-fixed p-4"
+    style={{ backgroundImage: "url(/backgrounds/status.jpg)" }}
+  >
+    
 
       <RPGWindow title={`${character.name} の ステータス`}>
 
