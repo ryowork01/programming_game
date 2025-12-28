@@ -14,7 +14,7 @@ interface Question {
 }
 
 export function LearnPage() {
-  const { setPage, setMessage, gainExp, gainGold } = useGame()
+  const { gameState, setPage, setMessage, gainExp, gainGold, loadPlayerData } = useGame()
 
   // Supabase から取得した問題
   const [questions, setQuestions] = useState<Question[]>([])
@@ -24,6 +24,10 @@ export function LearnPage() {
   const [index, setIndex] = useState(0)
   const [answered, setAnswered] = useState(false)
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    loadPlayerData();
+  }, []);
 
   /* ---------------------------
    * 問題取得（初回のみ）
@@ -190,6 +194,12 @@ export function LearnPage() {
           </RPGButton>
         </div>
       </RPGWindow>
+      
+      <RPGWindow title="メッセージ">
+        <p className="text-sm text-yellow-300 min-h-12">
+          {gameState.message}
+        </p>
+      </RPGWindow>
 
       <style jsx>{`
         .rpg-menu-item:hover {
@@ -200,8 +210,5 @@ export function LearnPage() {
       `}</style>
     </div>
   )
-}
-function gainGold(arg0: number) {
-  throw new Error("Function not implemented.")
 }
 

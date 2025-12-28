@@ -30,13 +30,17 @@ export function LogoutButton() {
 
 export function HomePage() {
   const router = useRouter()
-  const { gameState, setPage, setMessage, setCharacter } = useGame()
+  const { gameState, setPage, setMessage, setCharacter, loadPlayerData } = useGame()
 
   const [user, setUser] = useState<any>(null)
   const [authChecked, setAuthChecked] = useState(false)
   const [playerLoaded, setPlayerLoaded] = useState(false)
 
   const setupDoneRef = useRef(false)
+
+  useEffect(() => {
+    loadPlayerData();
+  }, []);
 
   // =====================
   // Auth 確定
@@ -101,7 +105,7 @@ export function HomePage() {
           exp: finalPlayer.exp,
           nextLevelExp: 100,
           skills: [],
-          gold: 0,
+          gold: finalPlayer.gold,
         })
 
         setMessage(`ようこそ ${finalPlayer.name}！`)
@@ -200,7 +204,6 @@ export function HomePage() {
               ▶ スキルボード
             </RPGButton>
 
-            {/* 🆕 ここ追加 */}
             <RPGButton className="w-full text-left rpg-menu-item" onClick={() => router.push("/shop")}>
               ▶ どうぐ屋
             </RPGButton>
