@@ -1,64 +1,53 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { supabase } from "@/lib/supabaseClient"
 import { useGame } from "@/components/game-state"
 import { RPGWindow, RPGButton } from "@/components/rpg-window"
+import { getRandomQuestion } from "@/lib/supabaseQuestions"
 
 interface Question {
   id: string
   statement: string
   correct: boolean
   exp: number
+  gold: number
   explanation: string
 }
 
 export function LearnPage() {
   const { gameState, setPage, setMessage, gainExp, gainGold, loadPlayerData } = useGame()
 
-  // Supabase から取得した問題
-  const [questions, setQuestions] = useState<Question[]>([])
+  const [question, setQuestion] = useState<Question | null>(null)
   const [loading, setLoading] = useState(true)
 
-  // 出題制御
-  const [index, setIndex] = useState(0)
   const [answered, setAnswered] = useState(false)
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null)
 
+  // 初回プレイヤーデータ読み込み
   useEffect(() => {
-    loadPlayerData();
-  }, []);
+    loadPlayerData()
+  }, [])
 
-  /* ---------------------------
-   * 問題取得（初回のみ）
-   * --------------------------- */
+  // 初回問題取得
   useEffect(() => {
-    const fetchQuestions = async () => {
-      const { data, error } = await supabase
-        .from("questions")
-        .select("id, statement, correct, exp, explanation")
-        .eq("is_active", true)
-        .order("created_at", { ascending: true })
-        .limit(10)
+    loadNewQuestion()
+  }, [])
 
-      if (error || !data || data.length === 0) {
-        setMessage("もんだいを よみこめなかった…")
-        setPage("home")
-        console.log("Error fetching questions:", error)
-        return
-      }
-
-      setQuestions(data as Question[])
-      setLoading(false)
+  const loadNewQuestion = async () => {
+    setLoading(true)
+    const q = await getRandomQuestion()
+    if (!q) {
+      setMessage("もんだいを よみこめなかった…")
+      setPage("home")
+      return
     }
+    setQuestion(q)
+    setAnswered(false)
+    setIsCorrect(null)
+    setLoading(false)
+  }
 
-    fetchQuestions()
-  }, [setMessage, setPage])
-
-  /* ---------------------------
-   * ローディング表示
-   * --------------------------- */
-  if (loading) {
+  if (loading || !question) {
     return (
       <div className="max-w-2xl mx-auto space-y-4">
         <RPGWindow title="よみこみちゅう">
@@ -73,43 +62,31 @@ export function LearnPage() {
     )
   }
 
-  const current = questions[index]
-
   /* ---------------------------
-   * 回答処理
+   * 回答
    * --------------------------- */
   const handleAnswer = (userAnswer: boolean) => {
     if (answered) return
 
-    const correct = userAnswer === current.correct
+    const correct = userAnswer === question.correct
     setAnswered(true)
     setIsCorrect(correct)
 
     if (correct) {
-      gainExp(current.exp)
-      gainGold(10)  // 正解時にゴールドを10獲得
-      setMessage(`せいかい！${current.exp} の けいけんちと 10G をえた！`)
+      gainExp(question.exp)
+      gainGold(question.gold)
+      setMessage(`せいかい！${question.exp} の けいけんちと ${question.gold}G をえた！`)
     } else {
       setMessage("ざんねん… まちがいだ。")
     }
   }
 
   /* ---------------------------
-   * 次の問題へ
+   * 次の問題
    * --------------------------- */
   const handleNext = () => {
     if (!answered) return
-
-    const next = index + 1
-    if (next >= questions.length) {
-      setMessage("すべての もんだいが しゅうりょうした！")
-      setTimeout(() => setPage("home"), 800)
-      return
-    }
-
-    setIndex(next)
-    setAnswered(false)
-    setIsCorrect(null)
+    loadNewQuestion()            // 🎯 次はランダム新規取得
   }
 
   /* ---------------------------
@@ -120,12 +97,15 @@ export function LearnPage() {
     setPage("home")
   }
 
-  /* ---------------------------
-   * UI
-   * --------------------------- */
   return (
-    <div className="max-w-2xl mx-auto space-y-4">
-      <RPGWindow title={`○×クイズ (${index + 1}/${questions.length})`}>
+    <div
+      className="min-h-screen flex bg-cover bg-center bg-rpg-dark bg-fixed "
+      style={{ backgroundImage: "url(/backgrounds/learn.jpg)" }}
+    >
+      {/* 暗幕 */}
+      <div className="min-h-screen bg-black/60 w-full justify-center p-4">
+
+      <RPGWindow title="○×クイズ - ランダムしゅつだい">
         <p
           className="text-sm text-cyan-400 mb-3"
           style={{
@@ -145,7 +125,7 @@ export function LearnPage() {
             fontWeight: 700,
           }}
         >
-          Q: {current.statement}
+          Q: {question.statement}
         </p>
 
         {/* 判定後：解説 */}
@@ -155,60 +135,38 @@ export function LearnPage() {
               {isCorrect ? "せいかい！" : "ふせいかい"}
             </div>
             <div className="text-xs mt-1 text-gray-200">
-              {current.explanation}
+              {question.explanation}
             </div>
           </div>
         )}
 
         {/* 回答ボタン */}
         <div className="grid grid-cols-2 gap-3 mb-4">
-          <RPGButton
-            onClick={() => handleAnswer(true)}
-            className="rpg-menu-item"
-            disabled={answered}
-          >
+          <RPGButton className="w-full flex-1 text-left rpg-menu-item" onClick={() => handleAnswer(true)} disabled={answered}>
             ○ そうだ
           </RPGButton>
-
-          <RPGButton
-            onClick={() => handleAnswer(false)}
-            className="rpg-menu-item"
-            disabled={answered}
-          >
+          <RPGButton className="w-full flex-1 text-left rpg-menu-item" onClick={() => handleAnswer(false)} disabled={answered}>
             × ちがう
           </RPGButton>
         </div>
 
         {/* 操作 */}
         <div className="flex gap-2">
-          <RPGButton
-            onClick={handleNext}
-            className="flex-1 rpg-menu-item"
-            disabled={!answered}
-          >
-            {index + 1 >= questions.length ? "しゅうりょう" : "つぎへ"}
+          <RPGButton className="w-full flex-1 text-left rpg-menu-item" onClick={handleNext} disabled={!answered}>
+            つぎへ
           </RPGButton>
-
-          <RPGButton onClick={handleAbort} className="flex-1 rpg-menu-item">
+          <RPGButton className="w-full flex-1 text-left rpg-menu-item" onClick={handleAbort} >
             もどる
           </RPGButton>
         </div>
       </RPGWindow>
-      
+
       <RPGWindow title="メッセージ">
         <p className="text-sm text-yellow-300 min-h-12">
           {gameState.message}
         </p>
       </RPGWindow>
-
-      <style jsx>{`
-        .rpg-menu-item:hover {
-          filter: brightness(1.3);
-          transform: translateX(6px);
-          transition: 0.15s;
-        }
-      `}</style>
+    </div>
     </div>
   )
 }
-
