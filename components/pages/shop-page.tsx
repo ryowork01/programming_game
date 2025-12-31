@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { useGame } from "@/components/game-state";
+import { Skill, useGame } from "@/components/game-state";
 import { RPGWindow, RPGButton } from "@/components/rpg-window";
 import { useRouter } from "next/navigation";
 
@@ -16,9 +16,7 @@ export type ShopItem = {
 
 // ▼ items テーブルから取得
 const fetchItems = async (): Promise<ShopItem[]> => {
-	const { data, error } = await supabase
-	.from("items")
-	.select("*");
+	const { data, error } = await supabase.from("items").select("*");
 
 	if (error) {
 		console.error("Failed to load items:", error);
@@ -28,65 +26,46 @@ const fetchItems = async (): Promise<ShopItem[]> => {
 	return (data ?? []) as ShopItem[];
 };
 
+
+
 export default function ShopPage() {
-	const { gameState, setMessage, setCharacter, addItem, setPage } = useGame();
+	const { gameState, setMessage, addItem, loadPlayerData, gainGold } = useGame();
 	const player = gameState.character;
 	const [items, setItems] = useState<ShopItem[]>([]);
 	const router = useRouter();
 
+	
+
+
 	// 一度だけ商品一覧を取得
 	useEffect(() => {
 		fetchItems().then((list) => setItems(list));
+		loadPlayerData();
 	}, []);
 
-	// ▼ 購入処理
+
+	
+	// 購入処理
 	const buyItem = async (item: ShopItem) => {
-		if (player.gold < item.price) {
-			setMessage("おかねがたりない！");
+		if (gameState.character.gold < item.price) {
+			setMessage("おかねが たりない！");
 			return;
 		}
 
-		const newGold = player.gold - item.price;
-
-		// ローカル state 更新
+		await gainGold(-item.price);
 		addItem(item.id);
-		setCharacter({
-			...player,
-			gold: newGold,
-		});
 
-		// Supabase 更新（金額）
-		const { error: goldErr } = await supabase
-			.from("players")
-			.update({ gold: newGold })
-			.eq("id", player.id);
-		if (goldErr) console.error("Gold update error:", goldErr);
-
-		// アイテム所持の Supabase 反映
-		const { data: existing } = await supabase
-			.from("player_items")
-			.select("*")
-			.eq("player_id", player.id)
-			.eq("item_id", item.id)
-			.maybeSingle();
-
-		if (!existing) {
-			await supabase.from("player_items").insert({
-				player_id: player.id,
-				item_id: item.id,
-				quantity: 1,
-			});
-		} else {
-			await supabase
-				.from("player_items")
-				.update({ quantity: existing.quantity + 1 })
-				.eq("id", existing.id);
-		}
+		// ❌ await fetchPlayer() は削除
+		// ⭕ DB と UI を同期する
+		await loadPlayerData();
 
 		setMessage(`${item.name} を１つてにいれた！`);
-	};
+	}
 
 
+
+		
+		
 
 	return (
 		<main
@@ -96,6 +75,11 @@ export default function ShopPage() {
 			}}
 		>
 			<RPGWindow title="どうぐ屋">
+				{/* 🪙 所持金表示 追加 */}
+				<div className="mb-4 text-right text-yellow-300 font-bold text-lg">
+					所持金：{player.gold} G
+				</div>
+
 				<ul className="space-y-3 text-cyan-200">
 					{items.length === 0 && <p>商品がありません</p>}
 
@@ -105,17 +89,23 @@ export default function ShopPage() {
 								<strong>{item.name}</strong>
 								<p className="text-xs opacity-80">{item.description}</p>
 							</div>
-							<RPGButton onClick={() => buyItem(item)}>
+							<RPGButton onClick={() => buyItem(item)}
+								className="rpg-menu-item"
+								>
 								💰 {item.price}G で買う
 							</RPGButton>
 						</li>
 					))}
 				</ul>
 
+				<RPGWindow title="メッセージ">
+					<p className="text-sm text-yellow-300 min-h-12">
+						{gameState.message}
+					</p>
+				</RPGWindow>
+
 				<RPGButton
-					onClick={() => 
-						router.push("/home")
-					}
+					onClick={() => router.push("/home")}
 					className="dq-button rpg-menu-item mt-4"
 				>
 					◀ ホームへもどる
@@ -124,3 +114,5 @@ export default function ShopPage() {
 		</main>
 	);
 }
+
+

@@ -10,61 +10,51 @@ interface Enemy {
   maxHp: number
   attack: number
   defense: number
+  image: string
 }
 
+{/* 敵データ */}
 const ENEMIES: Enemy[] = [
-  { name: "スライム", hp: 15, maxHp: 15, attack: 3, defense: 1 },
-  { name: "オーク", hp: 25, maxHp: 25, attack: 5, defense: 2 },
-  { name: "ドラゴン", hp: 50, maxHp: 50, attack: 8, defense: 4 },
+  { name: "スライム", hp: 15, maxHp: 15, attack: 3, defense: 1, image: "/enemies/enemy_slime.png" },
+  //{ name: "オーク", hp: 25, maxHp: 25, attack: 5, defense: 2 }, 後で追加
+  //{ name: "ドラゴン", hp: 50, maxHp: 50, attack: 8, defense: 4 }, 後で追加
 ]
 
+
+{/* 戦闘処理 */}
 export function BattlePage() {
   const { gameState, setPage, setMessage, gainExp, takeDamage } = useGame()
   const [enemy, setEnemy] = useState<Enemy>(ENEMIES[0])
-  const [battleLog, setBattleLog] = useState<string[]>([`${enemy.name}が あらわれた！`])
+  const [battleLog, setBattleLog] = useState<string[]>([
+    `${enemy.name} が あらわれた！`,
+  ])
   const [battleActive, setBattleActive] = useState(true)
+
+  const pushLog = (msg: string) =>
+    setBattleLog((prev) => [...prev, msg])
 
   const handleAttack = () => {
     const damage = Math.floor(Math.random() * 12) + 5
     const newHp = Math.max(0, enemy.hp - damage)
+    pushLog(`ゆうしゃの こうげき！ ${damage} の ダメージ！`)
 
-    setBattleLog((prev) => [...prev, `ゆうしゃの こうげき！ ${damage} の ダメージ！`])
-
-    // 倒した場合
     if (newHp <= 0) {
       const exp = Math.floor(enemy.maxHp * 1.5)
       gainExp(exp)
-
-      setBattleLog((prev) => [
-        ...prev,
-        `${enemy.name}を たおした！`,
-        `${exp} のけいけんち を えた！`
-      ])
-
-      setMessage(`${enemy.name}を たおし ${exp} のけいけんち を えた！`)
+      pushLog(`${enemy.name} を たおした！ ${exp} のけいけんち！`)
+      setMessage(`${enemy.name} を たおした！`)
       setBattleActive(false)
       return
     }
 
-    // まだ敵が生きてる
     setEnemy((prev) => ({ ...prev, hp: newHp }))
 
-    // ▼ 安全な反撃処理
     setTimeout(() => {
       const enemyDamage = Math.floor(Math.random() * 8) + 2
-
-      // takeDamage を先に呼ぶ
       takeDamage(enemyDamage)
+      pushLog(`${enemy.name} の こうげき！ ${enemyDamage} の ダメージ！`)
 
-      const afterHp = gameState.character.hp - enemyDamage
-
-      setBattleLog((prev) => [
-        ...prev,
-        `${enemy.name} の こうげき！ ${enemyDamage} の ダメージ！`,
-      ])
-
-      // HPが0以下になったらゲームオーバー
-      if (afterHp <= 0) {
+      if (gameState.character.hp - enemyDamage <= 0) {
         setMessage("ゆうしゃは ちからつきた…")
         setBattleActive(false)
       }
@@ -72,96 +62,116 @@ export function BattlePage() {
   }
 
   const handleFlee = () => {
-    setBattleLog((prev) => [...prev, "ゆうしゃは にげだした！"])
-    setMessage("たたかいから にげだした。")
+    pushLog("ゆうしゃは にげだした！")
+    setMessage("にげだした。")
     setBattleActive(false)
-
-    setTimeout(() => setPage("home"), 1500)
+    setTimeout(() => setPage("home"), 1200)
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-4 p-4 bg-[#1a1b29] min-h-screen text-cyan-100">
-
-      {/* Enemy display */}
-      <div className="text-center mt-4 enemy-appear">
-        <p
-          className="text-xl text-cyan-300"
-          style={{
-            fontFamily: '"Courier New", monospace',
-            letterSpacing: "0.08em",
-            fontWeight: "bold",
-          }}
-        >
+    <div
+      className="min-h-screen flex flex-col justify-between items-center bg-cover bg-center bg-rpg-dark"
+      style={{ backgroundImage: "url(/backgrounds/battle.jpg)" }}
+    >
+      {/* 敵表示 */}
+      <div className="text-center mt-6 enemy-appear">
+        <p className="text-3xl text-cyan-300 font-bold font-mono tracking-widest">
           ■ {enemy.name} ■
         </p>
+
+        {/* 敵画像 */}
+        <div className="w-full flex justify-center mt-3">
+          <img
+            src={enemy.image}
+            alt={enemy.name}
+            className="enemy-sprite"
+            style={{ imageRendering: "pixelated"}}
+          />
+        </div>  
+        
       </div>
 
-      {/* Battle Status */}
-      <div className="grid grid-cols-2 gap-4">
-        <RPGWindow title="ゆうしゃ">
-          <RPGBar label="ＨＰ" current={gameState.character.hp} max={gameState.character.maxHp} color="cyan" />
-        </RPGWindow>
-        <RPGWindow title={enemy.name}>
-          <RPGBar label="ＨＰ" current={enemy.hp} max={enemy.maxHp} color="pink" />
-        </RPGWindow>
-      </div>
-
-      {/* Battle Log */}
-      <RPGWindow title="たたかいのきろく">
-        <div className="h-40 overflow-y-auto space-y-1 px-1">
-          {battleLog.map((log, i) => (
-            <p
-              key={i}
-              className="text-xs text-cyan-400"
-              style={{
-                fontFamily: '"Courier New", monospace',
-                letterSpacing: "0.05em",
-                fontWeight: "bold",
-              }}
-            >
-              ▶ {log}
-            </p>
-          ))}
-        </div>
-      </RPGWindow>
-
-      {/* Commands */}
-      {battleActive ? (
-        <RPGWindow title="コマンド">
-          <div className="space-y-2">
-            <RPGButton onClick={handleAttack} className="w-full text-left rpg-menu-item">
-              ▶ こうげき
-            </RPGButton>
-
-            <RPGButton onClick={handleFlee} className="w-full text-left rpg-menu-item">
-              ▶ にげる
-            </RPGButton>
+      {/* バトルログ（中央） */}
+      <div className="w-full max-w-lg mt-6">
+        <RPGWindow title="たたかいのきろく">
+          <div className="h-44 overflow-y-auto px-2 space-y-1">
+            {battleLog.map((line, idx) => (
+              <p key={idx} className="text-xs text-cyan-400 font-mono">
+                ▶ {line}
+              </p>
+            ))}
           </div>
         </RPGWindow>
-      ) : (
-        <RPGButton
-          onClick={() => setPage("home")}
-          className="w-full mt-4 rpg-menu-item"
-        >
-          ▶ ホームに もどる
-        </RPGButton>
-      )}
+      </div>
+
+      {/* ステータス（ゆうしゃ & 敵） */}
+      <div className="w-full max-w-lg px-4">
+        <div className="grid grid-cols-2 gap-4">
+          <RPGWindow title="ゆうしゃ">
+            <RPGBar
+              label="ＨＰ"
+              current={gameState.character.hp}
+              max={gameState.character.maxHp}
+              color="cyan"
+            />
+          </RPGWindow>
+
+          <RPGWindow title={enemy.name}>
+            <RPGBar
+              label="ＨＰ"
+              current={enemy.hp}
+              max={enemy.maxHp}
+              color="pink"
+            />
+          </RPGWindow>
+        </div>
+      </div>
+
+      {/* コマンド（画面下固定） */}
+      <div className="w-full max-w-md mb-6">
+        {battleActive ? (
+          <RPGWindow title="コマンド">
+            <div className="space-y-2">
+              <RPGButton onClick={handleAttack} className="w-full text-left rpg-menu-item">
+                ▶ こうげき
+              </RPGButton>
+              <RPGButton onClick={handleFlee} className="w-full text-left rpg-menu-item">
+                ▶ にげる
+              </RPGButton>
+            </div>
+          </RPGWindow>
+        ) : (
+          <RPGButton
+            onClick={() => setPage("home")}
+            className="w-full mt-3 rpg-menu-item"
+          >
+            ▶ ホームにもどる
+          </RPGButton>
+        )}
+      </div>
 
       <style jsx>{`
         .enemy-appear {
           animation: fadeIn 1.2s ease-out;
         }
-
         @keyframes fadeIn {
-          0% { opacity: 0; transform: translateY(-5px); }
+          0% { opacity: 0; transform: translateY(-8px); }
           100% { opacity: 1; transform: translateY(0); }
         }
-
         .rpg-menu-item:hover {
-          filter: brightness(1.3);
+          filter: brightness(1.25);
           transform: translateX(6px);
           transition: 0.15s;
         }
+        .enemy-sprite {
+          width: 160px;
+          height: auto;
+          animation: float 2.4s ease-in-out infinite;
+        }
+        @keyframes float {
+          0% { transform: translateY(0px);
+          50% { transform: translateY(-6px);
+          100% { transform: translateY(0px);}
       `}</style>
     </div>
   )

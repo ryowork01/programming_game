@@ -1,7 +1,8 @@
 "use client"
 
 import type React from "react"
-import { createContext, useContext, useState, useCallback } from "react"
+import { createContext, useContext, useState, useCallback, useEffect } from "react"
+import { supabase } from "@/lib/supabaseClient"
 
 export interface Character {
   id: string
@@ -15,8 +16,6 @@ export interface Character {
   nextLevelExp: number
   gold: number
   skills: Skill[]
-
-  // 🟡 所持アイテム追加
   items?: { id: string; quantity: number }[]
 }
 
@@ -43,16 +42,17 @@ interface GameContextType {
   learnSkill: (skill: Skill) => void
   takeDamage: (amount: number) => void
   heal: (amount: number) => void
-  gainGold: (amount: number) => void
-
-  // 🟡 Shop 用：アイテムを増やす
+  gainGold: (amount: number) => Promise<void>
   addItem: (itemId: string) => void
+  loadPlayerData: () => Promise<void>
+  
+  
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined)
 
 const defaultCharacter: Character = {
-  id: "1",
+  id: "",
   name: "勇者",
   level: 1,
   hp: 30,
@@ -62,15 +62,8 @@ const defaultCharacter: Character = {
   exp: 0,
   nextLevelExp: 100,
   gold: 0,
-  skills: [
-    {
-      id: "slash",
-      name: "なぎはらい",
-      description: "通常攻撃",
-      mpCost: 0,
-    },
-  ],
-  items: [], // 🟡 初期値追加
+  skills: [{ id: "slash", name: "なぎはらい", description: "通常攻撃", mpCost: 0 }],
+  items: [],
 }
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
@@ -80,6 +73,30 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     message: "ようこそ、勇者よ！",
     isAnimating: false,
   })
+
+  /** 🎯 Supabase から最新のプレイヤー情報を取得 */
+  const loadPlayerData = useCallback(async () => {
+    const { data: auth } = await supabase.auth.getUser()
+    if (!auth?.user) return
+
+    const { data, error } = await supabase
+      .from("players")
+      .select("*")
+      .eq("user_id", auth.user.id)  //修正箇所はここ
+      .single()
+
+    if (!error && data) {
+      setGameState((prev) => ({
+        ...prev,
+        character: { ...prev.character, ...data },
+      }))
+    }
+  }, [])
+
+  /** 🏁 初回ロード時に自動で Supabase と同期 */
+  useEffect(() => {
+    loadPlayerData()
+  }, [loadPlayerData])
 
   const setCharacter = useCallback((character: Character) => {
     setGameState((prev) => ({ ...prev, character }))
@@ -104,32 +121,22 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
             level: prev.character.level + 1,
             exp: 0,
             nextLevelExp: Math.floor(prev.character.nextLevelExp * 1.5),
-            maxHp: prev.character.maxHp + 10,
-            hp: prev.character.maxHp + 10,
-            maxMp: prev.character.maxMp + 5,
-            mp: prev.character.maxMp + 5,
           },
-          message: `${prev.character.name}はレベル${prev.character.level + 1}に上がった！`,
         }
       }
-      return {
-        ...prev,
-        character: { ...prev.character, exp: newExp },
-      }
+      return { ...prev, character: { ...prev.character, exp: newExp } }
     })
   }, [])
 
   const learnSkill = useCallback((skill: Skill) => {
     setGameState((prev) => {
-      const hasSkill = prev.character.skills.some((s) => s.id === skill.id)
-      if (hasSkill) return prev
+      if (prev.character.skills.some((s) => s.id === skill.id)) return prev
       return {
         ...prev,
         character: {
           ...prev.character,
           skills: [...prev.character.skills, skill],
         },
-        message: `${skill.name}を習得した！`,
       }
     })
   }, [])
@@ -137,10 +144,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const takeDamage = useCallback((amount: number) => {
     setGameState((prev) => ({
       ...prev,
-      character: {
-        ...prev.character,
-        hp: Math.max(0, prev.character.hp - amount),
-      },
+      character: { ...prev.character, hp: Math.max(0, prev.character.hp - amount) },
     }))
   }, [])
 
@@ -154,17 +158,38 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     }))
   }, [])
 
-  const gainGold = useCallback((amount: number) => {
-    setGameState((prev) => ({
-      ...prev,
-      character: {
-        ...prev.character,
-        gold: prev.character.gold + amount,
-      },
-    }))
-  }, [])
 
-  // 🟡 所持アイテム追加処理
+  /** 💰 ゴールド獲得（Supabase 永続化） */
+  const gainGold = useCallback(async (amount: number) => {
+    const { data: auth } = await supabase.auth.getUser()
+    if (!auth?.user) return
+
+    const newGold = gameState.character.gold + amount
+
+    const { error } = await supabase
+      .from("players")
+      .update({ gold: newGold })
+      .eq("user_id", auth.user.id)
+
+    if (error) {
+      console.error("💰 Gold update failed:", error)
+      return
+    }
+
+    // UI反映
+    setGameState(prev => ({
+      ...prev,
+      character: { ...prev.character, gold: newGold }
+    }))
+
+    // ★ Supabaseから再取得（完全同期）
+    await loadPlayerData()
+  }, [gameState.character.gold, loadPlayerData])
+
+
+
+
+  /** 🎒 アイテム所持追加 */
   const addItem = useCallback((itemId: string) => {
     setGameState((prev) => {
       const exists = prev.character.items?.find((x) => x.id === itemId)
@@ -189,20 +214,25 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     })
   }, [])
 
-  const value: GameContextType = {
-    gameState,
-    setCharacter,
-    setPage,
-    setMessage,
-    gainExp,
-    learnSkill,
-    takeDamage,
-    heal,
-    gainGold,
-    addItem, // 🟡 追加
-  }
-
-  return <GameContext.Provider value={value}>{children}</GameContext.Provider>
+  return (
+    <GameContext.Provider
+      value={{
+        gameState,
+        setCharacter,
+        setPage,
+        setMessage,
+        gainExp,
+        learnSkill,
+        takeDamage,
+        heal,
+        gainGold,
+        addItem,
+        loadPlayerData,
+      }}
+    >
+      {children}
+    </GameContext.Provider>
+  )
 }
 
 export function useGame() {
@@ -210,5 +240,3 @@ export function useGame() {
   if (!context) throw new Error("useGame must be used within GameProvider")
   return context
 }
-
-
