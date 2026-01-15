@@ -140,25 +140,35 @@ export function LearnPage() {
           </div>
         )}
 
-        {/* 回答ボタン */}
+        {/* 解答前 */}
+        {!answered && (
         <div className="grid grid-cols-2 gap-3 mb-4 ">
-          <RPGButton className="w-full flex-1 text-left rpg-menu-item" onClick={() => handleAnswer(true)} disabled={answered}>
+          <RPGButton className="w-full flex-1 text-left rpg-menu-item" 
+          onClick={() => handleAnswer(true)} disabled={answered}>
             〇 はい
           </RPGButton>
-          <RPGButton className="w-full flex-1 text-left rpg-menu-item" onClick={() => handleAnswer(false)} disabled={answered}>
+
+          <RPGButton className="w-full flex-1 text-left rpg-menu-item" 
+          onClick={() => handleAnswer(false)} disabled={answered}>
             ✕ いいえ
           </RPGButton>
         </div>
+        )}
 
         {/* 操作 */}
+        {answered && (
         <div className="flex gap-2">
-          <RPGButton className="w-full flex-1 text-left rpg-menu-item" onClick={handleNext} disabled={!answered}>
+          <RPGButton className="w-full flex-1 text-left rpg-menu-item" 
+          onClick={handleNext} disabled={!answered}>
             つぎへ
           </RPGButton>
-          <RPGButton className="w-full flex-1 text-left rpg-menu-item" onClick={handleAbort} >
+          <RPGButton className="w-full flex-1 text-left rpg-menu-item" 
+          onClick={handleAbort} >
             もどる
           </RPGButton>
         </div>
+        )}
+
       </RPGWindow>
 
       <RPGWindow title="メッセージ">

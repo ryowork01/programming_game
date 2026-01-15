@@ -8,6 +8,7 @@ import { BattlePage } from "./battle-page"
 import { StatusPage } from "./status-page"
 import { supabase } from "@/lib/supabaseClient"
 import { useRouter } from "next/navigation"
+import { BGMControl } from "@/components/BGMControl"
 
 
 //ライセンス表記ページリンク
@@ -160,6 +161,13 @@ export function HomePage() {
             <h1 className="text-4xl text-cyan-300 mb-2 text-left retro-title font-serif">
               Code Questia
             </h1>
+
+            {/* BGM表示 */}
+            <div className="flex justify-start mb-1">
+              <BGMControl />
+            </div>
+
+
             <p className="text-cyan-400 text-left text-xs">
               ▼ 学んで冒険しよう ▼
             </p>
