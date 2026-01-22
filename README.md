@@ -37,10 +37,12 @@ https://code-questia.vercel.app/
 - UI/UX
 
 # テスト・修正の設計及び実施書
+[テスト・修正の設計及び実施書 Googleスプレッドシート](https://docs.google.com/spreadsheets/d/1aCEr5hLBGEHEz92uQSzEXJxc3w4YzMxDc5_VfbHGxT8/edit?usp=sharing)
 
 
 # アプリの改善案
-
+[アプリ改善案　Googleスプレッドシート]
+(https://docs.google.com/spreadsheets/d/1pe0OOuZhIB4Kbtdo-nm0WY5a7eB-qSHnLSKevzyQUCQ/edit?usp=sharing)
 
 # 備考
 
